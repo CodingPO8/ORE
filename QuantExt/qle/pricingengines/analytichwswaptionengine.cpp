@@ -42,10 +42,10 @@ Real AnalyticHwSwaptionEngine::s(const Time t, const Array& x) const {
         Real discountFactor = model_->discountBond(t, paymentTime, x, c_);
         floatingLegNPV += coupon->amount() * discountFactor;
 
-        std::cout << "Calling discountBond with t: " << t << ", T: " << paymentTime << std::endl;
-        std::cout << "discount factor: "<<discountFactor << std::endl;
-        std::cout << coupon->amount() << std::endl;
-        std::cout << std::endl;
+        // std::cout << "Calling discountBond with t: " << t << ", T: " << paymentTime << std::endl;
+        // std::cout << "discount factor: "<<discountFactor << std::endl;
+        // std::cout << coupon->amount() << std::endl;
+        // std::cout << std::endl;
     }
     // Calculate NPV of fixed leg
     for (auto const& coupon : fixedLeg_) {
