@@ -144,13 +144,12 @@ BOOST_AUTO_TEST_CASE(testHwSwaptionPricing) {
     ext::shared_ptr<Exercise> europeanExercise(new EuropeanExercise(expiry));
     Swaption swaption(underlyingSwap, europeanExercise);
 
-    // 构建HW模型参数化
+
     Matrix sigma(1, 1, 0.01);  
     Array kappa(1, 0.01);  
     ext::shared_ptr<IrHwParametrization> irhw = boost::make_shared<IrHwConstantParametrization>(EURCurrency(), flatCurve, sigma, kappa);
     ext::shared_ptr<HwModel> hwModel = boost::make_shared<HwModel>(irhw);
 
-    // 构建和配置价格引擎
     // Array times(10);
     // std::cout << "times array: " ;
     // for (int i = 0; i < 10; i++) {
