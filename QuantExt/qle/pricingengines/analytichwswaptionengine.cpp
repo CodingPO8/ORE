@@ -132,6 +132,7 @@ Real AnalyticHwSwaptionEngine::v() const{
     }
     PiecewiseConstantHelper1::update();
     Real integral = this->int_y_sqr(T0);
+    std::cout << "integral in v() is: " << integral << std::endl;
 
     return integral;
 

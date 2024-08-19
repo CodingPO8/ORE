@@ -29,7 +29,6 @@ private:
     QuantLib::ext::shared_ptr<IrHwParametrization> p_;
     Handle<YieldTermStructure> c_;
     Swaption swaption;
-    Time T0;
 
     Real s(const Time t, const Array& x) const;
     Real a(const Time t, const Array& x) const;
