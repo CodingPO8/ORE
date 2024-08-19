@@ -119,6 +119,7 @@ BOOST_AUTO_TEST_CASE(testHwSwaptionPricing) {
     Date start = today + 1 * Years;
     Date end = start + 10 * Years;
     Schedule schedule(start, end, Period(Annual), NullCalendar(), Unadjusted, Unadjusted, DateGeneration::Forward, false);
+    //Schedule schedule(start, end, Period(Annual), NullCalendar(), Following, Following, DateGeneration::Backward, false);
     Real nominal = 1000000;
     Rate fixedRate = 0.02;
     ext::shared_ptr<IborIndex> euriborIndex = boost::make_shared<Euribor6M>(flatCurve);
@@ -129,8 +130,14 @@ BOOST_AUTO_TEST_CASE(testHwSwaptionPricing) {
     std::cout << "Evaluation Date: " << Settings::instance().evaluationDate() << std::endl;
 
     // print first payment date
-    std::cout << "First Payment Date(start): " << start << std::endl;
-    std::cout << "Last Payment Date(end): " << end <<std::endl;
+    std::cout << "start date: " << start << std::endl;
+    std::cout << "end date: " << end <<std::endl;
+
+    // print schedule to check fixed rate payment days
+    std::cout << "Payment Dates for Fixed Rate:" << std::endl;
+    for (const Date& date : schedule) {
+        std::cout << date << std::endl;
+    }
 
     // construct a swaption
     Date expiry = start - 1 * Days;
@@ -144,36 +151,67 @@ BOOST_AUTO_TEST_CASE(testHwSwaptionPricing) {
     ext::shared_ptr<HwModel> hwModel = boost::make_shared<HwModel>(irhw);
 
     // 构建和配置价格引擎
-    Array times(10);
+    // Array times(10);
+    // std::cout << "times array: " ;
+    // for (int i = 0; i < 10; i++) {
+    //     times[i] = (i+1) * 0.1;
+    //     std::cout<< times[i] << " ";
+    // }
+    // std:: cout << std::endl;
+
+    Array times(2);
+    times[0] = 0.5;
+    times[1] = 1.0;
     std::cout << "times array: " ;
-    for (int i = 0; i < 10; i++) {
-        times[i] = (i+1) * 0.1;
-        std::cout<< times[i] << " ";
+    for (Time time : times) {
+        
+        std::cout<< time << " ";
     }
     std:: cout << std::endl;
 
     ext::shared_ptr<PricingEngine> hw_engine = boost::make_shared<AnalyticHwSwaptionEngine>(times, swaption, hwModel, flatCurve);
     swaption.setPricingEngine(hw_engine);
 
-    // 访问fixedLeg_
+    // check fixedLeg_
     const auto& fixedLeg = underlyingSwap->fixedLeg();
     for (const auto& cf : fixedLeg) {
         auto fixedCoupon = boost::dynamic_pointer_cast<FixedRateCoupon>(cf);
         if (fixedCoupon) {
-            // 检查每个固定利率优惠券的属性
+            //std::cout << "This is in the test unit!!" << std::endl;
             BOOST_CHECK_EQUAL(fixedCoupon->nominal(), nominal);
             BOOST_CHECK_CLOSE(fixedCoupon->rate(), fixedRate, 1e-12); // 允许一些浮点误差
             BOOST_TEST_MESSAGE("Coupon date: " << fixedCoupon->date() << ", rate: " << fixedCoupon->rate());
+            //std::cout << "Payment Date: " << cf->date() << std::endl;
         } else {
             BOOST_ERROR("Expected a FixedRateCoupon but got something else.");
         }
     }
 
-    // 输出定价结果
+    // // print fixedLeg_ info
+    // std::cout << "This is in unit test!" << std::endl;
+    // const auto& fixedleg = underlyingSwap->fixedLeg();
+    // std::cout << "Fixed Leg Dates:" << std::endl;
+    // for (const auto& cf : fixedleg) {
+    //     std::cout << cf->date() << std::endl;
+    // }
+
+    // // print floatingLeg_ info
+    // const auto& floatingleg = underlyingSwap->floatingLeg();
+    // std::cout << "Floating Leg Dates:" << std::endl;
+    // for (const auto& cf : floatingleg) {
+    //     std::cout << cf->date() << std::endl;
+    // }
+
+
+
     Real npv = swaption.NPV();
     //BOOST_CHECK_CLOSE(npv, expectedNpv, 1.0e-2);  // expectedNpv需要根据具体情况预设
 
     BOOST_TEST_MESSAGE("NPV: " << npv);
+
+
+    // test the HW engine result again Monte Carlo
+    
 
     
 }
