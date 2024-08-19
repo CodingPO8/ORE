@@ -158,7 +158,6 @@ void AnalyticHwSwaptionEngine::calculate() const {
     CumulativeNormalDistribution cdf;
 
     const auto& underlyingSwap = swaption.underlyingSwap();
-    // Assuming the fixed leg has at least one cashflow to determine the strike price
     Real strikePrice = underlyingSwap->fixedRate();
 
     Real s0 = s(0, x);
