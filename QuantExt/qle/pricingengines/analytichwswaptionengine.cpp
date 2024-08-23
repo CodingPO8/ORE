@@ -113,8 +113,8 @@ Real AnalyticHwSwaptionEngine::v() const{
     }
     PiecewiseConstantHelper1::update();
     Real integral = this->int_y_sqr(T0);
-    return integral;
 
+    return integral;
 }
 
 void AnalyticHwSwaptionEngine::calculate() const {

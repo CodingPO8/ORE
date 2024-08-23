@@ -15,11 +15,7 @@ class AnalyticHwSwaptionEngine : public GenericEngine<Swaption::arguments, Swapt
 public:
     AnalyticHwSwaptionEngine(const Array& t, const Swaption& swaption,
                             const QuantLib::ext::shared_ptr<HwModel>& model,
-                             const Handle<YieldTermStructure>& discountCurve = Handle<YieldTermStructure>());
-    
-    std::vector<QuantLib::ext::shared_ptr<FixedRateCoupon>> fixedLeg_;
-    std::vector<QuantLib::ext::shared_ptr<FloatingRateCoupon>> floatingLeg_;
-    
+                             const Handle<YieldTermStructure>& discountCurve = Handle<YieldTermStructure>());       
     
     void calculate() const;
 
@@ -29,6 +25,9 @@ private:
     QuantLib::ext::shared_ptr<IrHwParametrization> p_;
     Handle<YieldTermStructure> c_;
     Swaption swaption;
+
+    std::vector<QuantLib::ext::shared_ptr<FixedRateCoupon>> fixedLeg_;
+    std::vector<QuantLib::ext::shared_ptr<FloatingRateCoupon>> floatingLeg_;
 
     Real s(const Time t, const Array& x) const;
     Real a(const Time t, const Array& x) const;
