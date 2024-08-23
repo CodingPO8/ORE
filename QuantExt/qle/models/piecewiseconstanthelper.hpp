@@ -282,42 +282,15 @@ inline Real PiecewiseConstantHelper3::y1(const Time t) const {
     return direct1(QL_PIECEWISE_FUNCTION(t1_, y1_->params(), t));
 }
 
-inline Real PiecewiseConstantHelper3::y2(const Time t) const {
-    return direct2(QL_PIECEWISE_FUNCTION(t2_, y2_->params(), t));
-}
-
 inline Real PiecewiseConstantHelper1::int_y_sqr(const Time t) const {
     if (t < 0.0)
         return 0.0;
     Size i = std::upper_bound(t_.begin(), t_.end(), t) - t_.begin();
-    std::cout << "t_.begin(): " << t_.begin()<< std::endl;;
-    std::cout << "std::upper_bound(t_.begin(), t_.end(), t): " << std::upper_bound(t_.begin(), t_.end(), t) << std::endl;
-
-    std::cout << "Time t: " << t << std::endl;
-    std::cout << "Index i: " << i << std::endl;
-    std::cout << "Params at or before time t: ";
-    for (Size j = 0; j <= std::min(i, y_->size() - 1); ++j) {
-        std::cout << y_->params()[j] << (j < std::min(i, y_->size() - 1) ? ", " : "\n");
-    }
-    if (!y_ || y_->size() == 0) {
-        std::cerr << "Error: y_ is not properly initialized or empty." << std::endl;
-        return 0.0;
-    }
-    if (b_.empty()) {
-        std::cerr << "Error: b_ is empty." << std::endl;
-        return 0.0;
-    }
-
-
-
     Real res = 0.0;
     if (i >= 1)
         res += b_[std::min(i - 1, b_.size() - 1)];
-    std::cout << "Successfully checked i!!!" << std::endl;
     Real a = direct(y_->params()[std::min(i, y_->size() - 1)]);
-    std::cout << "Successfully computed a!!!!" << std::endl;
     res += a * a * (t - (i == 0 ? 0.0 : t_[i - 1]));
-    std::cout << "res is: " << res << std::endl;
     return res;
 }
 
