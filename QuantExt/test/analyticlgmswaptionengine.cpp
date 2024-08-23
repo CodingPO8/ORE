@@ -92,13 +92,16 @@
 #include <ql/time/daycounters/thirty360.hpp>
 
 #include <boost/make_shared.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 
 using namespace QuantLib;
 using namespace QuantExt;
 
 namespace {
 struct F : public qle::test::TopLevelFixture {
-    F() { Settings::instance().evaluationDate() = Date(20, March, 2019); }
+    F() { Settings::instance().evaluationDate() = Date(1, March, 2016); }
     ~F() {}
 };
 } // namespace
@@ -113,60 +116,29 @@ BOOST_AUTO_TEST_CASE(testHwSwaptionPricing) {
     Date today = Settings::instance().evaluationDate();
     Settings::instance().evaluationDate() = today;
     
-
-    Handle<YieldTermStructure> flatCurve(boost::make_shared<FlatForward>(today, 0.02, Actual365Fixed()));
+    Handle<YieldTermStructure> flatCurve(boost::make_shared<FlatForward>(today, 0.02, Actual360()));
 
     Date start = today + 1 * Years;
-    Date end = start + 10 * Years;
+    Date end = start + 19 * Years;
     Schedule schedule(start, end, Period(Annual), NullCalendar(), Unadjusted, Unadjusted, DateGeneration::Forward, false);
-    //Schedule schedule(start, end, Period(Annual), NullCalendar(), Following, Following, DateGeneration::Backward, false);
-    Real nominal = 1000000;
-    Rate fixedRate = 0.02;
+    Real nominal = 10000000;
+    Rate fixedRate = 0.01;
     ext::shared_ptr<IborIndex> euriborIndex = boost::make_shared<Euribor6M>(flatCurve);
     VanillaSwap::Type swapType = VanillaSwap::Payer;
     ext::shared_ptr<VanillaSwap> underlyingSwap = boost::make_shared<VanillaSwap>(swapType, nominal, schedule, fixedRate, Actual360(), schedule, euriborIndex, 0.0, euriborIndex->dayCounter());
-
-    // print evaluation date
-    std::cout << "Evaluation Date: " << Settings::instance().evaluationDate() << std::endl;
-
-    // print first payment date
-    std::cout << "start date: " << start << std::endl;
-    std::cout << "end date: " << end <<std::endl;
-
-    // print schedule to check fixed rate payment days
-    std::cout << "Payment Dates for Fixed Rate:" << std::endl;
-    for (const Date& date : schedule) {
-        std::cout << date << std::endl;
-    }
-
-    // construct a swaption
     Date expiry = start - 1 * Days;
     ext::shared_ptr<Exercise> europeanExercise(new EuropeanExercise(expiry));
     Swaption swaption(underlyingSwap, europeanExercise);
-
 
     Matrix sigma(1, 1, 0.01);  
     Array kappa(1, 0.01);  
     ext::shared_ptr<IrHwParametrization> irhw = boost::make_shared<IrHwConstantParametrization>(EURCurrency(), flatCurve, sigma, kappa);
     ext::shared_ptr<HwModel> hwModel = boost::make_shared<HwModel>(irhw);
 
-    // Array times(10);
-    // std::cout << "times array: " ;
-    // for (int i = 0; i < 10; i++) {
-    //     times[i] = (i+1) * 0.1;
-    //     std::cout<< times[i] << " ";
-    // }
-    // std:: cout << std::endl;
-
-    Array times(2);
-    times[0] = 0.5;
-    times[1] = 1.0;
-    std::cout << "times array: " ;
-    for (Time time : times) {
-        
-        std::cout<< time << " ";
+    Array times(1000);
+    for (int i = 0; i < 1000; i++) {
+        times[i] = (i+1) * 0.001;
     }
-    std:: cout << std::endl;
 
     ext::shared_ptr<PricingEngine> hw_engine = boost::make_shared<AnalyticHwSwaptionEngine>(times, swaption, hwModel, flatCurve);
     swaption.setPricingEngine(hw_engine);
@@ -186,33 +158,9 @@ BOOST_AUTO_TEST_CASE(testHwSwaptionPricing) {
         }
     }
 
-    // // print fixedLeg_ info
-    // std::cout << "This is in unit test!" << std::endl;
-    // const auto& fixedleg = underlyingSwap->fixedLeg();
-    // std::cout << "Fixed Leg Dates:" << std::endl;
-    // for (const auto& cf : fixedleg) {
-    //     std::cout << cf->date() << std::endl;
-    // }
+    Real npvAnalyticHw = swaption.NPV();
 
-    // // print floatingLeg_ info
-    // const auto& floatingleg = underlyingSwap->floatingLeg();
-    // std::cout << "Floating Leg Dates:" << std::endl;
-    // for (const auto& cf : floatingleg) {
-    //     std::cout << cf->date() << std::endl;
-    // }
-
-
-
-    Real npv = swaption.NPV();
-    //BOOST_CHECK_CLOSE(npv, expectedNpv, 1.0e-2);  // expectedNpv需要根据具体情况预设
-
-    BOOST_TEST_MESSAGE("NPV: " << npv);
-
-
-    // test the HW engine result again Monte Carlo
-    
-
-    
+    BOOST_TEST_MESSAGE("NPV: " << npvAnalyticHw);    
 }
 
 BOOST_AUTO_TEST_CASE(testMonoCurve) {

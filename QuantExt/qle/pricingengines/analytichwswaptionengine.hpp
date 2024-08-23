@@ -34,12 +34,6 @@ private:
     Real a(const Time t, const Array& x) const;
     Array q(const QuantLib::Time t, const QuantLib::Array& x) const;
     Real v() const;
-
-    
-    // Leg fixedLeg_;
-    // Leg floatingLeg_;
-    
-
 };
 
 }

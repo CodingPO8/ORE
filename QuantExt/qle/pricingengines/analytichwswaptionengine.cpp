@@ -42,11 +42,6 @@ Real AnalyticHwSwaptionEngine::s(const Time t, const Array& x) const {
         Time paymentTime = c_->timeFromReference(coupon->date());//coupon->date()就是paymentDate
         Real discountFactor = model_->discountBond(t, paymentTime, x, c_);
         floatingLegNPV += coupon->amount() * discountFactor;
-
-        // std::cout << "Calling discountBond with t: " << t << ", T: " << paymentTime << std::endl;
-        // std::cout << "discount factor: "<<discountFactor << std::endl;
-        // std::cout << coupon->amount() << std::endl;
-        // std::cout << std::endl;
     }
     // Calculate NPV of fixed leg
     for (auto const& coupon : fixedLeg_) {
@@ -56,12 +51,9 @@ Real AnalyticHwSwaptionEngine::s(const Time t, const Array& x) const {
         
     }
     return floatingLegNPV - fixedLegNPV;
-    //return swaption.underlyingSwap()->fixedLegNPV() - swaption.underlyingSwap()->floatingLegNPV();
-    
 }
 
 Real AnalyticHwSwaptionEngine::a(const Time t, const Array& x) const{
-    std::cout << "This is function a();" << std::endl;
     Real annuity = 0.0;
     for (auto const& coupon : fixedLeg_){
         Time paymentTime = c_->timeFromReference(coupon->date());
@@ -72,7 +64,6 @@ Real AnalyticHwSwaptionEngine::a(const Time t, const Array& x) const{
 }
 
 Array AnalyticHwSwaptionEngine::q(const Time t, const Array& x) const {
-    std::cout << "This is function q();" << std::endl;
     Size n = p_->n();
     Array q(n, 0.0);
 
@@ -107,12 +98,8 @@ Array AnalyticHwSwaptionEngine::q(const Time t, const Array& x) const {
 
 
 Real AnalyticHwSwaptionEngine::v() const{
-    std::cout << "This is function v();" << std::endl;
     Date startDate = swaption.underlyingSwap()->fixedSchedule().startDate();
     Time T0 = c_->timeFromReference(startDate);
-    std::cout << "T0 in v(): " << T0 << std::endl;
-
-    //PiecewiseConstantHelper1 piecewiseHelper(t_);
     
     auto integrand = [this](Real t) -> Real {
         Array x(p_->n(), 0.0); 
@@ -121,19 +108,11 @@ Real AnalyticHwSwaptionEngine::v() const{
         return std::pow(Norm2(product), 2);
     };
 
-    std::cout << "print t_ in PiecewiseConstantHelper1: "<< std::endl;
-    for (Time t : t_){
-        std::cout << t << " ";
-    }
-    std::cout << std::endl;
-
     for (Size i = 0; i < y_->size(); ++i) {
         y_->setParam(i, inverse(integrand(t_[i])));
     }
     PiecewiseConstantHelper1::update();
     Real integral = this->int_y_sqr(T0);
-    std::cout << "integral in v() is: " << integral << std::endl;
-
     return integral;
 
 }
@@ -142,9 +121,7 @@ void AnalyticHwSwaptionEngine::calculate() const {
     QL_REQUIRE(arguments_.settlementType == Settlement::Physical, "cash-settled swaptions are not supported ...");
     
     Date reference = p_->termStructure()->referenceDate();
-    std::cout << "reference date is: " << reference << std::endl;
     Date expiry = arguments_.exercise->dates().back();
-    std::cout << "expiry date is: " << expiry << std::endl;
 
     if (expiry <= reference) {
         // swaption is expired, possibly generated swap is not
@@ -162,14 +139,10 @@ void AnalyticHwSwaptionEngine::calculate() const {
     Real strikePrice = underlyingSwap->fixedRate();
 
     Real s0 = s(0, x);
-    std::cout << "s0 is: " << s0 << std::endl;
     Real a0 = a(0, x);
-    std::cout << "a0 is: " << a0 << std::endl;
     Real c = strikePrice; 
     Real d = (s0 - c) / sqrt(v());
-    std::cout << "d is: " << std::endl;
     results_.value = a0 * ((s0 - c) * cdf(d) + sqrt(v()) * pdf(d));
-    std::cout << "This is the final result!: " << results_.value << std::endl; 
 }
 
 }
