@@ -31,7 +31,6 @@ AnalyticHwSwaptionEngine::AnalyticHwSwaptionEngine(const Array& t,
 
 
 Real AnalyticHwSwaptionEngine::s(const Time t, const Array& x) const {
-    std::cout << "This is function s();" << std::endl;
     Real floatingLegNPV = 0.0;
     Real fixedLegNPV = 0.0;
 
