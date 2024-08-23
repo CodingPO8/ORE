@@ -1,8 +1,6 @@
 #include <qle/pricingengines/analytichwswaptionengine.hpp>
 #include <boost/bind/bind.hpp>
 
-#include <ostream>
-
 namespace QuantExt {
 
 AnalyticHwSwaptionEngine::AnalyticHwSwaptionEngine(const Array& t,
