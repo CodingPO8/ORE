@@ -39,7 +39,7 @@ Real AnalyticHwSwaptionEngine::s(const Time t, const Array& x) const {
 
     // Calculate NPV of floating leg
     for (auto const& coupon : floatingLeg_) {
-        Time paymentTime = c_->timeFromReference(coupon->date());//coupon->date()就是paymentDate
+        Time paymentTime = c_->timeFromReference(coupon->date());
         Real discountFactor = model_->discountBond(t, paymentTime, x, c_);
         floatingLegNPV += coupon->amount() * discountFactor;
     }
